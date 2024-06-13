@@ -1,0 +1,9 @@
+The purpose of Source2html project is to display
+source code in Browser
+● Source2html program shall parse a source file and
+generate equivalent HTML file
+● Browser takes HTML file as input and renders it in
+Browser window to display source code
+● Reserved key words, preprocessor directives,
+numerical constants, strings, ASCII characters etc
+must be displayed in pre-defined color
