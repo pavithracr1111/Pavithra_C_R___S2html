@@ -17,7 +17,7 @@ int main (int argc, char *argv[])
 	{
 		printf("\nError ! please enter file name and mode\n");
 		printf("Usage: <executable> <file name> \n");
-		printf("Example : ./a.out abc.txt\n\n");
+		printf("Example : ./a.out test.c\n\n");
 		return 1;
 	}
 #ifdef DEBUG

@@ -227,7 +227,7 @@ pevent_t *pstate_idle_handler(FILE *fd, int ch)
 				pevent_data.data[event_data_idx++] = ch;
 			}
 		}
-		else if (ch == '/') /* single line comment */
+		else if (ch == '/') /* single line comment */ 
 		{
 			if (event_data_idx) /* we have regular exp in buffer first process that */
 			{
@@ -235,7 +235,7 @@ pevent_t *pstate_idle_handler(FILE *fd, int ch)
 				set_parser_event(PSTATE_IDLE, PEVENT_REGULAR_EXP);
 				return &pevent_data;
 			}
-			else /* single line comment begin */
+			else /* single line comment begin */ 
 			{
 #ifdef DEBUG
 				printf("Single line comment Begin : //\n");
