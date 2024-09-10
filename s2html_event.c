@@ -227,7 +227,7 @@ pevent_t *pstate_idle_handler(FILE *fd, int ch)
 				pevent_data.data[event_data_idx++] = ch;
 			}
 		}
-		else if (ch == '/') /* single line comment */ 
+		else if (ch == '/') /* single line comment */
 		{
 			if (event_data_idx) /* we have regular exp in buffer first process that */
 			{
@@ -235,7 +235,7 @@ pevent_t *pstate_idle_handler(FILE *fd, int ch)
 				set_parser_event(PSTATE_IDLE, PEVENT_REGULAR_EXP);
 				return &pevent_data;
 			}
-			else /* single line comment begin */ 
+			else /* single line comment begin */
 			{
 #ifdef DEBUG
 				printf("Single line comment Begin : //\n");
@@ -346,29 +346,28 @@ pevent_t *pstate_preprocessor_directive_handler(FILE *fd, int ch)
 
 	return NULL;
 }
-
 pevent_t *pstate_sub_preprocessor_main_handler(FILE *fd, int ch)
 {
 	switch (ch)
 	{
-	case '<':
+	case '<': // Begin of header file
 		state = PSTATE_HEADER_FILE;
 		pevent_data.data[event_data_idx++] = ch;
 		break;
 
-	case ' ':
-	case '\t':
-	case '\n':
+	case ' ':  // Space character in preprocessor
+	case '\t': // Tab character in preprocessor
+	case '\n': // Newline in preprocessor
 		pevent_data.data[event_data_idx++] = ch;
 		break;
 
 	default:
-		if (isalpha(ch))
+		if (isalpha(ch)) // Alphabet character in preprocessor
 		{
 			state_sub = PSTATE_SUB_PREPROCESSOR_RESERVE_KEYWORD;
 			pevent_data.data[event_data_idx++] = ch;
 		}
-		else
+		else // ASCII character in preprocessor
 		{
 			state_sub = PSTATE_SUB_PREPROCESSOR_ASCII_CHAR;
 			pevent_data.data[event_data_idx++] = ch;
@@ -383,12 +382,12 @@ pevent_t *pstate_header_file_handler(FILE *fd, int ch)
 {
 	switch (ch)
 	{
-	case '>':
+	case '>': // End of header file
 		pevent_data.data[event_data_idx++] = ch;
 		set_parser_event(PSTATE_IDLE, PEVENT_HEADER_FILE);
 		return &pevent_data;
 
-	default:
+	default: // Characters within the header file
 		pevent_data.data[event_data_idx++] = ch;
 		break;
 	}
@@ -400,26 +399,26 @@ pevent_t *pstate_reserve_keyword_handler(FILE *fd, int ch)
 {
 	switch (ch)
 	{
-	case ' ':
-	case '\t':
-	case '\n':
-	case '(':
-	case ')':
-	case ';':
-	case ',':
-		pevent_data.data[event_data_idx] = '\0';
-		if (is_reserved_keyword(pevent_data.data))
+	case ' ':									   // Space after reserved keyword
+	case '\t':									   // Tab after reserved keyword
+	case '\n':									   // Newline after reserved keyword
+	case '(':									   // Open parenthesis after reserved keyword
+	case ')':									   // Close parenthesis after reserved keyword
+	case ';':									   // Semicolon after reserved keyword
+	case ',':									   // Comma after reserved keyword
+		pevent_data.data[event_data_idx] = '\0';   // Null terminate the word
+		if (is_reserved_keyword(pevent_data.data)) // Check if the word is reserved
 		{
 			set_parser_event(PSTATE_IDLE, PEVENT_RESERVE_KEYWORD);
 		}
-		else
+		else // Regular expression, not reserved
 		{
 			set_parser_event(PSTATE_IDLE, PEVENT_REGULAR_EXP);
 		}
-		fseek(fd, -1, SEEK_CUR); // unget the last character
+		fseek(fd, -1, SEEK_CUR); // Unget the last character
 		return &pevent_data;
 
-	default:
+	default: // Collect characters of the reserved keyword
 		pevent_data.data[event_data_idx++] = ch;
 		break;
 	}
@@ -429,14 +428,14 @@ pevent_t *pstate_reserve_keyword_handler(FILE *fd, int ch)
 
 pevent_t *pstate_numeric_constant_handler(FILE *fd, int ch)
 {
-	if (isdigit(ch))
+	if (isdigit(ch)) // Check if character is a digit
 	{
 		pevent_data.data[event_data_idx++] = ch;
 	}
-	else
+	else // End of numeric constant
 	{
 		set_parser_event(PSTATE_IDLE, PEVENT_NUMERIC_CONSTANT);
-		fseek(fd, -1, SEEK_CUR); // unget the last character
+		fseek(fd, -1, SEEK_CUR); // Unget the last character
 		return &pevent_data;
 	}
 
@@ -447,21 +446,21 @@ pevent_t *pstate_string_handler(FILE *fd, int ch)
 {
 	switch (ch)
 	{
-	case '\"':
+	case '\"': // End of string
 		pevent_data.data[event_data_idx++] = ch;
 		set_parser_event(PSTATE_IDLE, PEVENT_STRING);
 		return &pevent_data;
 
-	case '\\':
+	case '\\': // Escape character in string
 		pevent_data.data[event_data_idx++] = ch;
 		ch = fgetc(fd);
-		if (ch != EOF)
+		if (ch != EOF) // Read the escaped character
 		{
 			pevent_data.data[event_data_idx++] = ch;
 		}
 		break;
 
-	default:
+	default: // Regular string character
 		pevent_data.data[event_data_idx++] = ch;
 		break;
 	}
@@ -473,19 +472,17 @@ pevent_t *pstate_ascii_char_handler(FILE *fd, int ch)
 {
 	switch (ch)
 	{
-	case '\'':
+	case '\'': // End of ASCII character
 		pevent_data.data[event_data_idx++] = ch;
 		set_parser_event(PSTATE_IDLE, PEVENT_ASCII_CHAR);
 		return &pevent_data;
 
-	default:
+	default: // Collect ASCII character
 		pevent_data.data[event_data_idx++] = ch;
 		break;
 	}
 
 	return NULL;
 }
-
-
 
 /**** End of file ****/
